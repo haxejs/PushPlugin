@@ -10,7 +10,7 @@
 
 	<description>
 		This plugin allows your application to receive push notifications on Android, iOS, WP8 and Windows8 devices.
-    Android uses Google Cloud Messaging.
+    Android uses Google Cloud Messaging or AVOS.
     iOS uses Apple APNS Notifications.
     WP8 uses Microsoft MPNS Notifications.
     Windows8 uses Microsoft WNS Notifications.
@@ -26,7 +26,7 @@
 		<engine name="cordova" version=">=3.0.0" />
 	</engines>
 
-	<!-- android -->
+	<!-- android gcm
 	<platform name="android">
 
 		<config-file target="res/xml/config.xml" parent="/*">
@@ -63,6 +63,52 @@
 		<source-file src="src/android/com/plugin/gcm/PushHandlerActivity.java" target-dir="src/com/plugin/gcm/" />
 		<source-file src="src/android/com/plugin/gcm/PushPlugin.java" target-dir="src/com/plugin/gcm/" />
 		<source-file src="src/android/com/plugin/android-support-v13.jar" target-dir="libs/" />
+
+	</platform>
+	-->
+
+	<!-- android avos-->
+	<platform name="android">
+
+		<config-file target="res/xml/config.xml" parent="/*">
+			<feature name="PushPlugin" >
+				<param name="android-package" value="com.plugin.avos.PushPlugin"/>
+			</feature>
+		</config-file>
+
+		<config-file target="AndroidManifest.xml" parent="/manifest">
+			<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+			<uses-permission android:name="android.permission.WAKE_LOCK" />
+			<uses-permission android:name="android.permission.VIBRATE"/>
+		</config-file>
+
+		<config-file target="AndroidManifest.xml" parent="/manifest/application">
+			<activity android:name="com.plugin.avos.PushHandlerActivity" android:exported="true"/>
+			<receiver android:name="com.avos.avoscloud.AVBroadcastReceiver" >
+	            <intent-filter>
+	                <action android:name="android.intent.action.BOOT_COMPLETED" />
+	                <action android:name="android.intent.action.USER_PRESENT" />
+	            </intent-filter>
+	        </receiver>
+	        <receiver android:name="com.avos.avoscloud.AVDefaultNotificationReceiver" >
+	            <intent-filter>
+	                <action android:name="android.intent.action.BOOT_COMPLETED" />
+	                <action android:name="android.intent.action.USER_PRESENT" />
+	                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+	                <action android:name="com.avos.UPDATE_STATUS" />
+	            </intent-filter>
+	        </receiver>
+			<service android:name="com.avos.avoscloud.PushService" />
+		</config-file>
+
+		<source-file src="src/android/libs/android-async-http-1.4.4-fix.jar" target-dir="libs/" />
+		<source-file src="src/android/libs/android-support-v4.jar" target-dir="libs/" />
+		<source-file src="src/android/libs/avoscloud-v2.5.8.1.jar" target-dir="libs/" />
+		<source-file src="src/android/libs/avospush-v2.5.8.1.jar" target-dir="libs/" />
+		<source-file src="src/android/libs/fastjson.jar" target-dir="libs/" />
+		<source-file src="src/android/libs/httpmime-4.2.4.jar" target-dir="libs/" />
+		<source-file src="src/android/com/plugin/avos/PushHandlerActivity.java" target-dir="src/com/plugin/avos/" />
+		<source-file src="src/android/com/plugin/avos/PushPlugin.java" target-dir="src/com/plugin/avos/" />
 
 	</platform>
 
