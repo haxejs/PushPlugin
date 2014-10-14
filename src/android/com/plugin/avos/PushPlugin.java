@@ -64,11 +64,27 @@ public class PushPlugin extends CordovaPlugin {
 				Log.v(TAG, "execute: ECB=" + gECB + " senderID=" + gSenderID);
 
 				//GCMRegistrar.register(getApplicationContext(), gSenderID);
-				PushService.setDefaultPushCallback(this.cordova.getActivity(), PushHandlerActivity.class);
-				String installationId = AVInstallation.getCurrentInstallation().getInstallationId();
-				JSONObject json = new JSONObject().put("event", "registered");
-				json.put("regid", installationId);
-				PushPlugin.sendJavascript( json );
+				final String[] id_key = gSenderID.split(":");
+				if (id_key.length!=2){
+					Log.e(TAG, "avos senderID should be appID:appKey");
+					callbackContext.error("avos senderID should be appID:appKey");
+					return false;
+				}
+				final Context context = this.cordova.getActivity();
+				this.cordova.getActivity().runOnUiThread(new Runnable() {
+				      public void run() {				 
+				    	    AVOSCloud.initialize(context, id_key[0], id_key[1]);
+				    	    PushService.setDefaultPushCallback(context, PushHandlerActivity.class);
+							String installationId = AVInstallation.getCurrentInstallation().getInstallationId();
+							try{
+								JSONObject json = new JSONObject().put("event", "registered");
+								json.put("regid", installationId);
+								PushPlugin.sendJavascript( json );
+							}catch (JSONException e) {
+								Log.e(TAG, "execute: Got JSON Exception " + e.getMessage());
+							}
+				      }
+				});
 
 				result = true;
 				callbackContext.success();
